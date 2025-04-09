@@ -1,0 +1,16 @@
+treefile = tree_mb.tre
+numsites = 5964
+smooth = 0.0001
+mrca = ROOT Daucus_carota Helianthus_annuus
+
+min = ROOT 1
+max = ROOT 1
+
+outfile = tree_mb_dated.tre
+nthreads = 6
+
+opt = 2
+moredetail
+optad = 2
+optcvad = 2
+

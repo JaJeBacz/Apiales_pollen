@@ -1,0 +1,105 @@
+
+
+WARNING: RAxML is not checking sequences for duplicate seqs and sites with missing data!
+
+
+
+This is RAxML version 8.2.9 released by Alexandros Stamatakis on July 20 2016.
+
+With greatly appreciated code contributions by:
+Andre Aberer      (HITS)
+Simon Berger      (HITS)
+Alexey Kozlov     (HITS)
+Kassian Kobert    (HITS)
+David Dao         (KIT and HITS)
+Sarah Lutteropp   (KIT and HITS)
+Nick Pattengale   (Sandia)
+Wayne Pfeiffer    (SDSC)
+Akifumi S. Tanabe (NRIFS)
+Charlie Taylor    (UF)
+
+
+Alignment has 3746 distinct alignment patterns
+
+Proportion of gaps and completely undetermined characters in this alignment: 45.28%
+
+RAxML experimental very fast tree search
+
+Using 6 distinct models/data partitions with joint branch length optimization
+
+
+All free model parameters will be estimated by RAxML
+GAMMA model of rate heteorgeneity, ML estimate of alpha-parameter
+
+GAMMA Model parameters will be estimated up to an accuracy of 10.0000000000 Log Likelihood units
+
+Partition: 0
+Alignment Patterns: 517
+Name: Subset1
+DataType: DNA
+Substitution Matrix: GTR
+
+
+
+Partition: 1
+Alignment Patterns: 962
+Name: Subset2
+DataType: DNA
+Substitution Matrix: GTR
+
+
+
+Partition: 2
+Alignment Patterns: 589
+Name: Subset3
+DataType: DNA
+Substitution Matrix: GTR
+
+
+
+Partition: 3
+Alignment Patterns: 463
+Name: Subset4
+DataType: DNA
+Substitution Matrix: GTR
+
+
+
+Partition: 4
+Alignment Patterns: 489
+Name: Subset5
+DataType: DNA
+Substitution Matrix: GTR
+
+
+
+Partition: 5
+Alignment Patterns: 726
+Name: Subset6
+DataType: DNA
+Substitution Matrix: GTR
+
+
+
+
+RAxML was called as follows:
+
+/opt/partitionfinder-2.1.1/programs/raxml_pthreads.linux -f E -s ./analysis/start_tree/filtered_source.phy -m GTRGAMMA -O -n fastTREE -# 1 -p 123456789 -q ./analysis/start_tree/partitions.txt -e 10 -w /home/baczynski/PartitionFinder/Pollen/analysis/start_tree -T 8 
+
+
+Time after init : 0.201816
+Time after init and starting tree: 1.395228
+Time after init, starting tree, mod opt: 5.049705
+Partion 0 number of Cats: 1
+Partion 1 number of Cats: 1
+Partion 2 number of Cats: 1
+Partion 3 number of Cats: 1
+Partion 4 number of Cats: 1
+Partion 5 number of Cats: 1
+LH after SPRs -70647.572861, after NNI -70645.058049
+LH after SPRs -70645.049335, after NNI -70645.034868
+RAxML fast tree written to file: /home/baczynski/PartitionFinder/Pollen/analysis/start_tree/RAxML_fastTree.fastTREE
+
+Model parameters (binary file format) written to: /home/baczynski/PartitionFinder/Pollen/analysis/start_tree/RAxML_binaryModelParameters.fastTREE
+Total execution time: 17.545577
+Good bye ... 

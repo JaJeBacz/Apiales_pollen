@@ -1,0 +1,23 @@
+treefile = tree_mb.tre
+numsites = 5964
+mrca = ROOT Daucus_carota Helianthus_annuus
+
+min = ROOT 1
+max = ROOT 1
+
+outfile = mb_tree_dated.tre
+nthreads = 6
+
+opt = 2
+moredetail
+optad = 2
+optcvad = 2
+
+cv
+randomcv
+cviter = 2
+cvsimaniter = 10
+cvstart = 0.00001
+cvstop = 10000
+cvmultstep = 0.1
+cvoutfile = test.cv

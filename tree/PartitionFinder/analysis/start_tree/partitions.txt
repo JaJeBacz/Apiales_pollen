@@ -1,0 +1,6 @@
+DNA, Subset1 = 1-641
+DNA, Subset2 = 642-1964
+DNA, Subset3 = 1965-3371
+DNA, Subset4 = 3372-3937
+DNA, Subset5 = 3938-4985
+DNA, Subset6 = 4986-5964

@@ -1,0 +1,99 @@
+INFO     | 2023-03-19 23:57:51,539 | config     | Loading configuration at './partition_finder.cfg'
+INFO     | 2023-03-19 23:57:51,542 | config     | Setting 'alignment' to 'concatenated.phy'
+INFO     | 2023-03-19 23:57:51,542 | config     | Setting 'branchlengths' to 'linked'
+INFO     | 2023-03-19 23:57:51,542 | parser     | You set 'models' to: mrbayes
+INFO     | 2023-03-19 23:57:51,550 | model_load | This analysis will use the following 24 models of molecular evolution
+INFO     | 2023-03-19 23:57:51,550 | model_load | JC, K80, SYM, F81, HKY, GTR, JC+G, K80+G, SYM+G, F81+G, HKY+G, GTR+G, JC+I, K80+I, SYM+I, F81+I, HKY+I, GTR+I, JC+I+G, K80+I+G, SYM+I+G, F81+I+G, HKY+I+G, GTR+I+G
+INFO     | 2023-03-19 23:57:51,551 | config     | Setting 'model_selection' to 'bic'
+INFO     | 2023-03-19 23:57:51,553 | config     | Setting 'search' to 'all'
+INFO     | 2023-03-19 23:57:51,553 | config     | ------------------------ BEGINNING NEW RUN -------------------------------
+INFO     | 2023-03-19 23:57:51,553 | config     | Looking for alignment file './concatenated.phy'...
+INFO     | 2023-03-19 23:57:51,553 | analysis   | Beginning Analysis
+INFO     | 2023-03-19 23:57:51,562 | alignment  | Reading alignment file './concatenated.phy'
+INFO     | 2023-03-19 23:57:51,577 | analysis   | Starting tree will be estimated from the data.
+INFO     | 2023-03-19 23:57:51,578 | raxml      | Estimating Maximum Likelihood tree with RAxML fast experimental tree search for ./analysis/start_tree/filtered_source.phy
+INFO     | 2023-03-19 23:57:51,578 | raxml      | Using a separate GTR+G model for each data block
+INFO     | 2023-03-19 23:58:09,138 | raxml      | Estimating GTR+G branch lengths on ML tree using all partitions
+INFO     | 2023-03-19 23:58:16,268 | raxml      | ML topology estimation finished
+INFO     | 2023-03-19 23:58:16,269 | analysis_m | Performing complete analysis
+INFO     | 2023-03-20 00:03:41,572 | progress   | Finished subset 1/63, 1.59 percent done
+INFO     | 2023-03-20 00:08:04,749 | progress   | Finished subset 2/63, 3.17 percent done
+INFO     | 2023-03-20 00:08:31,183 | progress   | Finished subset 3/63, 4.76 percent done
+INFO     | 2023-03-20 00:12:49,261 | progress   | Finished subset 4/63, 6.35 percent done
+INFO     | 2023-03-20 00:12:49,430 | progress   | Finished subset 5/63, 7.94 percent done
+INFO     | 2023-03-20 00:16:13,685 | progress   | Finished subset 6/63, 9.52 percent done
+INFO     | 2023-03-20 00:17:20,620 | progress   | Finished subset 7/63, 11.11 percent done
+INFO     | 2023-03-20 00:22:22,102 | progress   | Finished subset 8/63, 12.70 percent done
+INFO     | 2023-03-20 00:22:56,505 | progress   | Finished subset 9/63, 14.29 percent done
+INFO     | 2023-03-20 00:25:37,201 | progress   | Finished subset 10/63, 15.87 percent done
+INFO     | 2023-03-20 00:27:12,162 | progress   | Finished subset 11/63, 17.46 percent done
+INFO     | 2023-03-20 00:31:13,732 | progress   | Finished subset 12/63, 19.05 percent done
+INFO     | 2023-03-20 00:31:53,886 | progress   | Finished subset 13/63, 20.63 percent done
+INFO     | 2023-03-20 00:34:16,874 | progress   | Finished subset 14/63, 22.22 percent done
+INFO     | 2023-03-20 00:36:04,906 | progress   | Finished subset 15/63, 23.81 percent done
+INFO     | 2023-03-20 00:40:43,172 | progress   | Finished subset 16/63, 25.40 percent done
+INFO     | 2023-03-20 00:45:41,251 | progress   | Finished subset 17/63, 26.98 percent done
+INFO     | 2023-03-20 00:48:24,843 | progress   | Finished subset 18/63, 28.57 percent done
+INFO     | 2023-03-20 00:49:32,930 | progress   | Finished subset 19/63, 30.16 percent done
+INFO     | 2023-03-20 00:52:29,350 | progress   | Finished subset 20/63, 31.75 percent done
+INFO     | 2023-03-20 00:53:57,392 | progress   | Finished subset 21/63, 33.33 percent done
+INFO     | 2023-03-20 00:55:46,999 | progress   | Finished subset 22/63, 34.92 percent done
+INFO     | 2023-03-20 01:01:29,385 | progress   | Finished subset 23/63, 36.51 percent done
+INFO     | 2023-03-20 01:03:46,831 | progress   | Finished subset 24/63, 38.10 percent done
+INFO     | 2023-03-20 01:04:50,841 | progress   | Finished subset 25/63, 39.68 percent done
+INFO     | 2023-03-20 01:07:13,852 | progress   | Finished subset 26/63, 41.27 percent done
+INFO     | 2023-03-20 01:09:07,897 | progress   | Finished subset 27/63, 42.86 percent done
+INFO     | 2023-03-20 01:10:52,806 | progress   | Finished subset 28/63, 44.44 percent done
+INFO     | 2023-03-20 01:13:06,241 | progress   | Finished subset 29/63, 46.03 percent done
+INFO     | 2023-03-20 01:16:17,657 | progress   | Finished subset 30/63, 47.62 percent done
+INFO     | 2023-03-20 01:17:24,094 | progress   | Finished subset 31/63, 49.21 percent done
+INFO     | 2023-03-20 01:21:30,885 | progress   | Finished subset 32/63, 50.79 percent done
+INFO     | 2023-03-20 01:22:29,593 | progress   | Finished subset 33/63, 52.38 percent done
+INFO     | 2023-03-20 01:24:45,878 | progress   | Finished subset 34/63, 53.97 percent done
+INFO     | 2023-03-20 01:26:53,624 | progress   | Finished subset 35/63, 55.56 percent done
+INFO     | 2023-03-20 01:29:42,022 | progress   | Finished subset 36/63, 57.14 percent done
+INFO     | 2023-03-20 01:31:11,734 | progress   | Finished subset 37/63, 58.73 percent done
+INFO     | 2023-03-20 01:35:33,028 | progress   | Finished subset 38/63, 60.32 percent done
+INFO     | 2023-03-20 01:37:49,400 | progress   | Finished subset 39/63, 61.90 percent done
+INFO     | 2023-03-20 01:40:15,789 | progress   | Finished subset 40/63, 63.49 percent done
+INFO     | 2023-03-20 01:42:28,655 | progress   | Finished subset 41/63, 65.08 percent done
+INFO     | 2023-03-20 01:45:31,768 | progress   | Finished subset 42/63, 66.67 percent done
+INFO     | 2023-03-20 01:48:09,244 | progress   | Finished subset 43/63, 68.25 percent done
+INFO     | 2023-03-20 01:50:05,069 | progress   | Finished subset 44/63, 69.84 percent done
+INFO     | 2023-03-20 01:52:33,328 | progress   | Finished subset 45/63, 71.43 percent done
+INFO     | 2023-03-20 01:56:39,686 | progress   | Finished subset 46/63, 73.02 percent done
+INFO     | 2023-03-20 01:57:17,020 | progress   | Finished subset 47/63, 74.60 percent done
+INFO     | 2023-03-20 01:59:33,090 | progress   | Finished subset 48/63, 76.19 percent done
+INFO     | 2023-03-20 02:00:55,608 | progress   | Finished subset 49/63, 77.78 percent done
+INFO     | 2023-03-20 02:04:03,641 | progress   | Finished subset 50/63, 79.37 percent done
+INFO     | 2023-03-20 02:05:14,525 | progress   | Finished subset 51/63, 80.95 percent done
+INFO     | 2023-03-20 02:07:42,005 | progress   | Finished subset 52/63, 82.54 percent done
+INFO     | 2023-03-20 02:09:27,402 | progress   | Finished subset 53/63, 84.13 percent done
+INFO     | 2023-03-20 02:13:40,203 | progress   | Finished subset 54/63, 85.71 percent done
+INFO     | 2023-03-20 02:13:55,233 | progress   | Finished subset 55/63, 87.30 percent done
+INFO     | 2023-03-20 02:16:48,092 | progress   | Finished subset 56/63, 88.89 percent done
+INFO     | 2023-03-20 02:17:48,650 | progress   | Finished subset 57/63, 90.48 percent done
+INFO     | 2023-03-20 02:20:29,331 | progress   | Finished subset 58/63, 92.06 percent done
+INFO     | 2023-03-20 02:21:20,449 | progress   | Finished subset 59/63, 93.65 percent done
+INFO     | 2023-03-20 02:25:50,628 | progress   | Finished subset 60/63, 95.24 percent done
+INFO     | 2023-03-20 02:26:16,409 | progress   | Finished subset 61/63, 96.83 percent done
+INFO     | 2023-03-20 02:29:36,158 | progress   | Finished subset 62/63, 98.41 percent done
+INFO     | 2023-03-20 02:29:48,212 | progress   | Finished subset 63/63, 100.00 percent done
+INFO     | 2023-03-20 02:29:48,341 | model_util | Information on best scheme is here: ./analysis/best_scheme.txt
+INFO     | 2023-03-20 02:29:48,343 | model_util | 
+INFO     | 2023-03-20 02:29:48,343 | model_util | 
+INFO     | 2023-03-20 02:29:48,343 | model_util | *Citations for this analysis*
+INFO     | 2023-03-20 02:29:48,343 | model_util | -----------------------------
+INFO     | 2023-03-20 02:29:48,343 | model_util | 
+INFO     | 2023-03-20 02:29:48,343 | model_util | If you use this analysis in your published work, please cite the following papers on which your analysis relied.
+INFO     | 2023-03-20 02:29:48,343 | model_util | 
+INFO     | 2023-03-20 02:29:48,343 | model_util | For the version of PartitionFinder you used, please cite:
+INFO     | 2023-03-20 02:29:48,343 | model_util | Lanfear, R., Frandsen, P. B., Wright, A. M., Senfeld, T., Calcott, B. (2016) PartitionFinder 2: new methods for selecting partitioned models of evolution formolecular and morphological phylogenetic analyses. Molecular biology and evolution. DOI: dx.doi.org/10.1093/molbev/msw260
+INFO     | 2023-03-20 02:29:48,344 | model_util | 
+INFO     | 2023-03-20 02:29:48,344 | model_util | For the all algorithm you used, please cite:
+INFO     | 2023-03-20 02:29:48,344 | model_util | 
+INFO     | 2023-03-20 02:29:48,344 | model_util | Your analysis also used PhyML, so please cite:
+INFO     | 2023-03-20 02:29:48,344 | model_util | Guindon, S., Dufayard, J. F., Lefort, V., Anisimova, M., Hordijk, W., & Gascuel, O. (2010). New algorithms and methods to estimate maximum-likelihood phylogenies: assessing the performance of PhyML 3.0. Systematic biology, 59(3), 307-321.
+INFO     | 2023-03-20 02:29:48,344 | model_util | 
+INFO     | 2023-03-20 02:29:48,347 | main       | Total processing time: 2:31:57 (h:m:s)
+INFO     | 2023-03-20 02:29:48,348 | main       | Processing complete.
