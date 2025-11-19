@@ -458,10 +458,7 @@ phylomorphospace3dJB_plot3D <- function(tree, X, A = NULL, control = list(),
   }
 }
 
-
-
-
-
+#PCA
 ggmorphoJB_color <- function (tree, tipinfo, xvar = PC1, yvar = PC2, factorvar = group, 
                               labelvar = taxon, title = "Phylomorphospace", xlab = "PC1", 
                               ylab = "PC2", repel = TRUE, edge.width = 1, fontface = "italic", 
@@ -534,4 +531,81 @@ ggmorphoJB_color <- function (tree, tipinfo, xvar = PC1, yvar = PC2, factorvar =
   }
   
   return(theplot)
+}
+
+#Paint regimes for plotting
+paint_regimes <- function(tree,
+                          clade_tips_list,
+                          state_codes = NULL,
+                          bg = "0") {
+  # if no explicit state codes, use "1","2",...,"k"
+  if (is.null(state_codes)) {
+    state_codes <- as.character(seq_along(clade_tips_list))
+  }
+  if (length(clade_tips_list) != length(state_codes)) {
+    stop("clade_tips_list and state_codes must have the same length.")
+  }
+  
+  sim <- if (inherits(tree, "simmap")) tree else init_simmap(tree, bg)
+  
+  # paint in order; later regimes override earlier ones in overlapping areas
+  for (i in seq_along(clade_tips_list)) {
+    tips_i <- clade_tips_list[[i]]
+    node_i <- getMRCA(sim, tips_i)
+    sim <- paintSubTree(sim, node = node_i, state = state_codes[i], anc.state = bg)
+  }
+  
+  sim
+}
+
+#Make a SIMMAP-like tree
+init_simmap <- function(tree, background_state = "0") {
+  if (is.null(tree$edge.length)) stop("Tree needs edge.length")
+  
+  states <- background_state
+  maps_list <- lapply(seq_len(nrow(tree$edge)), function(i) {
+    setNames(tree$edge.length[i], states)
+  })
+  
+  me <- matrix(0, nrow = nrow(tree$edge), ncol = 1,
+               dimnames = list(NULL, states))
+  me[, states] <- tree$edge.length
+  
+  tree$maps <- maps_list
+  tree$mapped.edge <- me
+  class(tree) <- c("simmap", class(tree))
+  tree
+}
+
+#Plot morphospace with branch segments colored by SIMMAP maps
+plot_morpho_simmap <- function(simmap_tree, pca_data,
+                               state_cols = c("0"="grey80","1"="goldenrod1","2"="purple3"),
+                               tip_fill  = c("background"="grey40",
+                                             "regime1"="goldenrod1",
+                                             "regime2"="purple3"),
+                               show_tips = TRUE) {
+  if (!all(simmap_tree$tip.label %in% rownames(pca_data))) {
+    missing <- setdiff(simmap_tree$tip.label, rownames(pca_data))
+    stop("Missing rows in pca_data for tips: ", paste(missing, collapse=", "))
+  }
+  X <- as.matrix(pca_data[simmap_tree$tip.label, c("PC1","PC2")])
+  
+  op <- par(mar=c(4,4,1,1))
+  on.exit(par(op), add=TRUE)
+  
+  phylomorphospace(simmap_tree, X,
+                   node.by.map = TRUE,
+                   colors = state_cols,
+                   label = "off",
+                   node.size = 0,
+                   lwd = 2)
+  
+  if (show_tips) {
+    if (!"regime" %in% colnames(pca_data)) {
+      points(X[,1], X[,2], pch = 21, bg = "white", col = "black", cex = 1.2)
+    } else {
+      pts_col <- tip_fill[ pca_data[simmap_tree$tip.label, "regime"] ]
+      points(X[,1], X[,2], pch = 21, bg = pts_col, col = "black", cex = 1.2)
+    }
+  }
 }
