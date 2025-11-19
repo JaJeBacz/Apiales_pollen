@@ -16,7 +16,6 @@ require(parallel)
 require(reshape2)
 library (PhylogeneticEM)
 require (l1ou)
-require (mvMORPH)
 require (phangorn)
 require (viridisLite)
 
@@ -516,123 +515,156 @@ H1.AICc.plot <- ggplot(H1.AICc.summary.melt, aes(x = factor(Tree), y = AICc, fil
   )
 
 
-# Helper function to generate a smooth CI gradient
-expand_ci <- function(lower, upper, n = 100) {
-  seq(lower, upper, length.out = n)
-}
+#Generate table with p-values for OU modek
 
-# Step 1: Extract coefficients and compute 95% CI across 100 trees
-results_list <- lapply(H1.fit.OU, function(fit) {
-  summary_table <- summary(fit)[[2]]
-  data.frame(
-    Predictor = rownames(summary_table),
-    Estimate = summary_table[, 1],
-    PValue = summary_table[, 4]
-  )
-})
+H1.pvals <- do.call(rbind, lapply(seq_along(H1.fit.OU), function(i) {
+  f  <- H1.fit.OU[[i]]
+  se <- sqrt(diag(f$vcov))
+  t  <- f$coefficients / se
+  df <- f$n - f$p
+  p  <- 2 * pt(abs(t), df, lower.tail = FALSE)
+  data.frame(Tree = i,
+             term = names(f$coefficients),
+             p = p)
+})) |>
+  subset(term != "(Intercept)")
 
-combined_results <- bind_rows(results_list, .id = "Tree") %>%
-  filter(Predictor != "(Intercept)")
+H1.pvalplot <- ggplot(H1.pvals, aes(x = p)) +
+  geom_density() +
+  facet_wrap(~ term, nrow = 1, scales = "free_x") +
+  theme_minimal()
 
-# Step 2: Compute CI for each predictor
-ci_results <- combined_results %>%
-  group_by(Predictor) %>%
-  summarize(
-    LowerCI = quantile(Estimate, probs = 0.025, na.rm = TRUE),
-    UpperCI = quantile(Estimate, probs = 0.975, na.rm = TRUE)
-  )
-
-# Step 3: Expand CI to gradient rows for each predictor
-expanded_df <- ci_results %>%
-  rowwise() %>%
-  mutate(
-    CI_Values = list(expand_ci(LowerCI, UpperCI, n = 100)),
-    Position = list(seq(-0.5, 0.5, length.out = 100))
-  ) %>%
-  unnest(c(CI_Values, Position)) %>%
-  ungroup()
-
-# Step 4: Heatmap with CI gradient
-H1.heatmap <- ggplot(expanded_df, aes(x = Predictor, y = "VOL")) +
-  geom_tile(aes(fill = CI_Values, height = 1, width = 1), color = "white") +
-  geom_raster(aes(x = as.numeric(as.factor(Predictor)) + Position, fill = CI_Values)) +
-  geom_text(data = ci_results, aes(y = "VOL", label = paste0("[", round(LowerCI, 2), ", ", round(UpperCI, 2), "]")),
-            color = "black", size = 4, vjust = 1.5) +
-  scale_fill_gradient2(low = "dodgerblue4", mid = "white", high = "firebrick4",
-                       midpoint = 0, limits = c(-1, 1), name = "95% CI Range") +
-  theme_minimal() +
-  labs(
-    x = "Predictor",
-    y = "Response"
-  ) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1),
-        axis.text.y = element_text(),
-        strip.text.y = element_text(size = 10))
-
-# Display the heatmap
-print(H1.heatmap)
+ggsave("plots/H1_pval.pdf", H1.pvalplot, device = "pdf", width = 140, height = 60, units = "mm")
 
 ######################
 #### Hypothesis 2 ####
 ######################
 
-H2.summary <- data.frame(Tree = indices,
-                         BM1 = AICc.vec(H2.BM1),
-                         BMM = AICc.vec(H2.BMM),
-                         OU1 = AICc.vec(H2.OU1),
-                         OUM.e = AICc.vec(H2.OUM.expanded),
-                         OUM = AICc.vec(H2.OUM),
-                         OUM.lag = AICc.vec(H4.OUM.lag),
-                         OUM.lag.e = AICc.vec(H4.OUM.B.lag),
-                         OUM.lag2 = AICc.vec(H4.OUM.lag2),
-                         OUM.lag2.e = AICc.vec(H4.OUM.B.lag2))
+# Original plot from initial submission.
 
-H2.summary.melt <- H2.summary %>%
-  gather(key = "Model", value = "AICc", -Tree) 
+# H2.summary <- data.frame(Tree = indices,
+#                          BM1 = AICc.vec(H2.BM1),
+#                          BMM = AICc.vec(H2.BMM),
+#                          OU1 = AICc.vec(H2.OU1),
+#                          OUM.e = AICc.vec(H2.OUM.expanded),
+#                          OUM = AICc.vec(H2.OUM),
+#                          OUM.lag = AICc.vec(H4.OUM.lag),
+#                          OUM.lag.e = AICc.vec(H4.OUM.B.lag),
+#                          OUM.lag2 = AICc.vec(H4.OUM.lag2),
+#                          OUM.lag2.e = AICc.vec(H4.OUM.B.lag2))
+# 
+# H2.summary.melt <- H2.summary %>%
+#   gather(key = "Model", value = "AICc", -Tree) 
+# 
+# H2.summary.melt <- H2.summary.melt %>%
+#   group_by(Tree) %>%
+#   arrange(Tree, AICc)%>%
+#   mutate(ModelOrder = max(row_number()) + 1 - row_number(),
+#          Difference = case_when(
+#            row_number() == 1 ~ AICc,
+#            row_number() == 2 ~ AICc - lag(AICc),
+#            row_number() == 3 ~ AICc - lag(AICc, order_by = AICc, n = 1),
+#            row_number() == 4 ~ AICc - lag(AICc, order_by = AICc, n = 2),
+#            row_number() == 5 ~ AICc - lag(AICc, order_by = AICc, n = 3),
+#            row_number() == 6 ~ AICc - lag(AICc, order_by = AICc, n = 3),
+#            row_number() == 7 ~ AICc - lag(AICc, order_by = AICc, n = 3),
+#            row_number() == 8 ~ AICc - lag(AICc, order_by = AICc, n = 3),
+#            row_number() == 9 ~ AICc - lag(AICc, order_by = AICc, n = 3)
+#            
+#          )
+#   )
+# 
+# H2.summary.plot <- ggplot(H2.summary.melt, aes(x = factor(Tree), y = Difference, fill = Model)) +
+#   geom_bar(stat = "identity", aes(group = ModelOrder)) +
+#   theme_minimal() +
+#   scale_fill_manual(values = c("azure3",
+#                               "cornflowerblue", 
+#                               "darkseagreen3", 
+#                               "goldenrod2", 
+#                               "indianred", 
+#                               "lightslateblue", 
+#                               "orchid4", 
+#                               "purple4",
+#                               "lightsteelblue4")) +
+#   theme(legend.position="bottom") +
+#   # scale_y_reverse() +
+#   labs(title = "",
+#        x = "Tree", y = "AICc", fill = "Model") +
+#   scale_x_discrete(breaks = seq(from = 1, to = 100, by = 10)) +
+#   theme(axis.line = element_line(color='black'),
+#         plot.background = element_blank(),
+#         panel.grid.major = element_blank(),
+#         panel.grid.minor = element_blank(),
+#         panel.border = element_blank()) + 
+#   coord_cartesian(ylim = c(min(H2.summary.melt$AICc), NA))
+# 
+# ggsave("plots/H2_AICc.pdf", H2.summary.plot, device = "pdf", width = 160, height = 100, units = "mm")
 
-H2.summary.melt <- H2.summary.melt %>%
+# New version of the plot with ridgeline showing distribution of ΔAICc
+
+H2.long <- data.frame(
+  Tree = indices,
+  BM1 = AICc.vec(H2.BM1),
+  BMM = AICc.vec(H2.BMM),
+  OU1 = AICc.vec(H2.OU1),
+  OUM.A = AICc.vec(H2.OUM),
+  OUM.B = AICc.vec(H2.OUM.expanded),
+  OUM.A.lag = AICc.vec(H4.OUM.lag),
+  OUM.B.lag = AICc.vec(H4.OUM.B.lag),
+  OUM.A.lag2 = AICc.vec(H4.OUM.lag2),
+  OUM.B.lag2 = AICc.vec(H4.OUM.B.lag2)
+) %>%
+  pivot_longer(-Tree, names_to = "Model", values_to = "AICc")
+
+# Compute ΔAICc within each tree
+H2.delta <- H2.long %>%
   group_by(Tree) %>%
-  arrange(Tree, AICc)%>%
-  mutate(ModelOrder = max(row_number()) + 1 - row_number(),
-         Difference = case_when(
-           row_number() == 1 ~ AICc,
-           row_number() == 2 ~ AICc - lag(AICc),
-           row_number() == 3 ~ AICc - lag(AICc, order_by = AICc, n = 1),
-           row_number() == 4 ~ AICc - lag(AICc, order_by = AICc, n = 2),
-           row_number() == 5 ~ AICc - lag(AICc, order_by = AICc, n = 3),
-           row_number() == 6 ~ AICc - lag(AICc, order_by = AICc, n = 3),
-           row_number() == 7 ~ AICc - lag(AICc, order_by = AICc, n = 3),
-           row_number() == 8 ~ AICc - lag(AICc, order_by = AICc, n = 3),
-           row_number() == 9 ~ AICc - lag(AICc, order_by = AICc, n = 3)
-           
-         )
+  mutate(dAICc = AICc - min(AICc, na.rm = TRUE)) %>%
+  ungroup()
+
+# Order models by median ΔAICc (best at top)
+model_order <- H2.delta %>%
+  group_by(Model) %>%
+  summarise(median_dAICc = median(dAICc, na.rm = TRUE)) %>%
+  arrange(median_dAICc) %>%
+  pull(Model)
+
+H2.delta$Model <- factor(H2.delta$Model, levels = rev(model_order))
+
+# Plot ridgelines
+p_ridge <- ggplot(H2.delta, aes(x = dAICc, y = Model)) +
+  geom_density_ridges(
+    scale = 1.3,
+    rel_min_height = 0.01,
+    fill = "grey90",     # soft neutral fill
+    color = "black",     # black ridge outlines
+    size = 0.4
+  ) +
+  # ΔAICc reference lines
+  geom_vline(
+    xintercept = c(2, 7, 10),
+    linetype = "solid",
+    color = "black",
+    alpha = 0.25,
+    linewidth = 0.4
+  ) +
+  theme_minimal(base_size = 10) +
+  theme(
+    legend.position = "none",
+    axis.title.y = element_blank(),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor = element_blank(),
+    plot.title = element_blank(),
+    axis.text.y = element_text(size = 9, color = "black"),
+    axis.text.x = element_text(size = 9, color = "black")
+  ) +
+  labs(
+    x = expression(Delta*AIC[c]),
+    y = NULL
   )
 
-H2.summary.plot <- ggplot(H2.summary.melt, aes(x = factor(Tree), y = Difference, fill = Model)) +
-  geom_bar(stat = "identity", aes(group = ModelOrder)) +
-  theme_minimal() +
-  scale_fill_manual(values = c("azure3",
-                              "cornflowerblue", 
-                              "darkseagreen3", 
-                              "goldenrod2", 
-                              "indianred", 
-                              "lightslateblue", 
-                              "orchid4", 
-                              "purple4",
-                              "lightsteelblue4")) +
-  theme(legend.position="bottom") +
-  # scale_y_reverse() +
-  labs(title = "",
-       x = "Tree", y = "AICc", fill = "Model") +
-  scale_x_discrete(breaks = seq(from = 1, to = 100, by = 10)) +
-  theme(axis.line = element_line(color='black'),
-        plot.background = element_blank(),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.border = element_blank()) + 
-  coord_cartesian(ylim = c(min(H2.summary.melt$AICc), NA))
-
-ggsave("plots/H2_AICc.pdf", H2.summary.plot, device = "pdf", width = 160, height = 100, units = "mm")
+ggsave("plots/H2_ridgeline_deltaAICc.pdf", p_ridge,
+       width = 160, height = 60, units = "mm")
 
 ######################
 #### Hypothesis 3 ####
@@ -840,14 +872,14 @@ ggsave("plots//H4_AICc.pdf", H4.summary.plot, device = "pdf", width = 160, heigh
 
 ###################################################
 ###################################################
-################## Halflife H2 #####################
+################## Halflife H4 #####################
 ###################################################
 ###################################################
 
-H2.hl <- cbind.data.frame (meand = rowMeans(sapply(H4.OUM.lag2, halflife)),
-                           sd = apply(sapply(H2.OUM, halflife), 1, sd))
+H4.hl <- cbind.data.frame (meand = rowMeans(sapply(H4.OUM.lag2, halflife)),
+                           sd = apply(sapply(H4.OUM.B.lag2, halflife), 1, sd))
 
-rownames(H2.hl) <- colnames(H2.OUM[[4]]$theta)
+rownames(H4.hl) <- colnames(H4.OUM.B.lag2[[4]]$theta)
 
 ###########################################################
 ###########################################################
@@ -904,3 +936,168 @@ ggsave("plots/H2_theta.pdf",
        width = 160, 
        height = 140, 
        units = "mm")
+
+###########################################
+#### Climate space occupied by regimes ####
+###########################################
+
+#Create regime tables
+regimes_phyloem <- data.frame(
+  species = contree.rooted$tip.label,
+  regime  = "background",
+  stringsAsFactors = FALSE
+)
+
+regimes_l1ou <- data.frame(
+  species = contree.rooted$tip.label,
+  regime  = "background",
+  stringsAsFactors = FALSE
+)
+
+# Define clade tip sets used as anchors
+phyloem_r1 <- c("Daucus_carota","Actinotus_helianthi","Platysace_lanceolata")
+phyloem_r2 <- c("Daucus_carota","Ammi_majus","Chamaesium_paradoxum")
+
+l1ou_r1 <- c("Daucus_carota", "Actinotus_helianthi", "Platysace_lanceolata",
+             "Hymenosporum_flavum", "Myodocarpus_fraxinifolius")
+l1ou_r2 <- c("Daucus_carota", "Ammi_majus", "Chamaesium_paradoxum")
+l1ou_r3 <- c("Harmsiopanax_ingens", "Dendropanax_arboreus", "Fatsia_japonica",
+             "Heptapleurum_heptaphyllum", "Pseudopanax_crassifolius")
+
+## --- PHYLOEM regimes: define via MRCA of anchors (optional but consistent) ---
+
+node_phy_r1 <- getMRCA(contree.rooted, phyloem_r1)
+node_phy_r2 <- getMRCA(contree.rooted, phyloem_r2)
+
+clade_phy_r1 <- extract.clade(contree.rooted, node_phy_r1)$tip.label
+clade_phy_r2 <- extract.clade(contree.rooted, node_phy_r2)$tip.label
+
+regimes_phyloem$regime[regimes_phyloem$species %in% clade_phy_r1] <- "regime1"
+regimes_phyloem$regime[regimes_phyloem$species %in% clade_phy_r2] <- "regime2"
+
+## --- L1OU regimes: **THIS is the important change** ---
+
+node_l1_r1 <- getMRCA(contree.rooted, l1ou_r1)
+node_l1_r2 <- getMRCA(contree.rooted, l1ou_r2)
+node_l1_r3 <- getMRCA(contree.rooted, l1ou_r3)
+
+clade_l1_r1 <- extract.clade(contree.rooted, node_l1_r1)$tip.label
+clade_l1_r2 <- extract.clade(contree.rooted, node_l1_r2)$tip.label
+clade_l1_r3 <- extract.clade(contree.rooted, node_l1_r3)$tip.label
+
+regimes_l1ou$regime[regimes_l1ou$species %in% clade_l1_r1] <- "regime1"
+regimes_l1ou$regime[regimes_l1ou$species %in% clade_l1_r2] <- "regime2"
+regimes_l1ou$regime[regimes_l1ou$species %in% clade_l1_r3] <- "regime3"
+
+## Align regimes to bioclim / PCA row order (unchanged)
+idx_phyloem <- match(rownames(bioclim), regimes_phyloem$species)
+idx_l1ou    <- match(rownames(bioclim), regimes_l1ou$species)
+
+if (any(is.na(idx_phyloem))) {
+  stop("Some bioclim rownames not found in regimes_phyloem$species: ",
+       paste(rownames(bioclim)[is.na(idx_phyloem)], collapse = ", "))
+}
+if (any(is.na(idx_l1ou))) {
+  stop("Some bioclim rownames not found in regimes_l1ou$species: ",
+       paste(rownames(bioclim)[is.na(idx_l1ou)], collapse = ", "))
+}
+
+regimes_phyloem <- regimes_phyloem[idx_phyloem, ]
+regimes_l1ou    <- regimes_l1ou[idx_l1ou, ]
+
+# Build PCA data frames (as before)
+pca_data_phyloem <- data.frame(
+  PC1     = PCA$x[, 1],
+  PC2     = PCA$x[, 2],
+  regime  = regimes_phyloem$regime,
+  species = rownames(bioclim),
+  row.names = rownames(bioclim)
+)
+
+pca_data_l1ou <- data.frame(
+  PC1     = PCA$x[, 1],
+  PC2     = PCA$x[, 2],
+  regime  = regimes_l1ou$regime,
+  species = rownames(bioclim),
+  row.names = rownames(bioclim)
+)
+
+## SIMMAP trees (unchanged)
+simmap_con_phyloem <- paint_regimes(
+  contree.rooted,
+  clade_tips_list = list(phyloem_r1, phyloem_r2),
+  state_codes     = c("1","2"),
+  bg = "0"
+)
+
+simmap_con_l1ou <- paint_regimes(
+  contree.rooted,
+  clade_tips_list = list(l1ou_r1, l1ou_r2, l1ou_r3),
+  state_codes     = c("1","2","3"),
+  bg = "0"
+)
+
+## Plot phylomorphospace with *aligned* colors
+
+pdf("plots/PCA_clim_phyloem.pdf", width = 5, height = 5)
+plot_morpho_simmap(
+  simmap_con_phyloem, pca_data_phyloem,
+  state_cols = c("0"="grey80","1"="goldenrod1","2"="purple3"),
+  tip_fill   = c("background"="grey80","regime1"="goldenrod1","regime2"="purple3"),
+  show_tips  = TRUE
+)
+dev.off()
+
+pdf("plots/PCA_clim_l1ou.pdf", width = 5, height = 5)
+plot_morpho_simmap(
+  simmap_con_l1ou, pca_data_l1ou,
+  state_cols = c("0"="grey80","1"="goldenrod1","2"="purple3","3"="springgreen4"),
+  tip_fill   = c("background"="grey80","regime1"="goldenrod1",
+                 "regime2"="purple3","regime3"="springgreen4"),
+  show_tips  = TRUE
+)
+dev.off()
+
+###########################################
+## Bioclim eigenvector loading plot
+###########################################
+
+eig <- PCA$rotation[, 1:2]
+eig_df <- data.frame(
+  bioclim = rownames(eig),
+  PC1 = eig[, 1],
+  PC2 = eig[, 2]
+)
+
+x_range_scores <- range(pca_data_phyloem$PC1)
+y_range_scores <- range(pca_data_phyloem$PC2)
+x_range_load   <- range(eig_df$PC1)
+y_range_load   <- range(eig_df$PC2)
+
+scale_factor <- min(
+  diff(x_range_scores) / diff(x_range_load),
+  diff(y_range_scores) / diff(y_range_load)
+) * 0.7
+
+eig_df$PC1s <- eig_df$PC1 * scale_factor
+eig_df$PC2s <- eig_df$PC2 * scale_factor
+
+pdf("plots/PCA_bioclim_eigenvectors.pdf", width = 5, height = 5)
+
+op <- par(mar = c(4, 4, 1, 1))
+on.exit(par(op), add = TRUE)
+
+plot(NA,
+     xlim = x_range_scores, ylim = y_range_scores,
+     xlab = "PC1", ylab = "PC2", asp = 1)
+
+abline(h = 0, v = 0, lty = 2, col = "grey70")
+box(bty = "n")
+
+arrows(0, 0, eig_df$PC1s, eig_df$PC2s,
+       length = 0.06, col = "grey20", lwd = 1.2)
+
+text(eig_df$PC1s, eig_df$PC2s, labels = eig_df$bioclim,
+     cex = 0.7, pos = 4, offset = 0.3)
+
+dev.off()
